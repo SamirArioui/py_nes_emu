@@ -50,116 +50,219 @@ class Cpu:
         return np.uint8(flag_state)
 
     # addressing modes
-    def imp(self) -> np.uint8:
-        """
-        implied addressing mode:
-        the address containing the operand is implicitly stated in the
-        operation code of the instruction
-        """
+    def IMP(self) -> np.uint8:
         pass
 
-    def imm(self) -> np.uint8:
-        """
-        immediate addressing mode:
-        the second byte of the instruction contains the operand
-        """
+    def IMM(self) -> np.uint8:
         pass
 
-    def zp0(self) -> np.uint8:
-        """
-        zero page addressing mode:
-        fetch only the second byte of the instruction and assuming
-        a zero high address byte
-        """
+    def ZPO(self) -> np.uint8:
         pass
 
-    def zpx(self) -> np.uint8:
-        """
-        zero page addressing mode with x:
-        same as the zero page addressing mode but we add x register content to
-        the second byte of the instruction
-        val = PEEK((arg + X) % 256)
-        """
+    def ZPX(self) -> np.uint8:
         pass
 
-    def zpy(self) -> np.uint8:
-        """
-        zero page addressing mode with y:
-        same as the zero page addressing mode but we add y register content to
-        the second byte of the instruction
-        val = PEEK((arg + Y) % 256)
-        """
+    def ZPY(self) -> np.uint8:
         pass
 
-    def abs(self) -> np.uint8:
-        """
-        absolute addressing mode:
-        the second byte of the instruction is the 8 low order bits of the
-        address
-        the third byte of the instruction is the 8 high order bits of the
-        address
-        """
+    def ABS(self) -> np.uint8:
         pass
 
-    def abx(self) -> np.uint8:
-        """
-        absolute addressing mode with x:
-        same as th absolute addressing mode but we add x register content to
-        the second and third bytes of th instruction
-        val = PEEK(arg + X)
-        """
+    def ABX(self) -> np.uint8:
         pass
 
-    def aby(self) -> np.uint8:
-        """
-        absolute addressing mode with y:
-        same as th absolute addressing mode but we add x register content to
-        the second and third bytes of th instruction
-        val = PEEK(arg + Y)
-        """
+    def ABY(self) -> np.uint8:
         pass
 
-    def ind(self) -> np.uint8:
-        """
-        indirect addressing mode:
-        """
+    def IND(self) -> np.uint8:
         pass
 
-    def izx(self) -> np.uint8:
-        """
-        indexed indirect addressing mode:
-        the second byte of the instruction is added to the content of
-        x register discarding the carry. the result point to a memory location
-        on page zero which contains the low order byte of the effective address
-        the next memory location contains the high order byte of the effective
-        address.
-        val = PEEK(PEEK((arg + X) % 256) + PEEK((arg + X + 1) % 256) * 256
-        """
+    def IZX(self) -> np.uint8:
         pass
 
-    def izy(self) -> np.uint8:
-        """
-        indirect indexed addressing mode:
-        the second byte of the instruction point to a memory location in
-        page zero. The contents of this memory location are added to the
-        contents of y register. The result is the low order byte of effective
-        address. The carry of this addition is added to the content of the next
-        page zero memory location, to form the high order byte of the effective
-        address
-        val = PEEK(PEEK(arg) + PEEK((arg + 1) % 256) * 256 + Y)
-        """
+    def IZY(self) -> np.uint8:
         pass
 
-    def rel(self) -> np.uint8:
-        """
-        relative addressing mode:
-        the second byte of the instruction is an operand. This operand
-        is an offset which is added to the program counter when the counter
-        is set at the next instruction
-        """
+    def REL(self) -> np.uint8:
         pass
 
     # opcodes
+    def ADC(self) -> np.uint8:
+        pass
+
+    def AND(self) -> np.uint8:
+        pass
+
+    def ASL(self) -> np.uint8:
+        pass
+
+    def BCC(self) -> np.uint8:
+        pass
+
+    def BCS(self) -> np.uint8:
+        pass
+
+    def BEQ(self) -> np.uint8:
+        pass
+
+    def BIT(self) -> np.uint8:
+        pass
+
+    def BMI(self) -> np.uint8:
+        pass
+
+    def BNE(self) -> np.uint8:
+        pass
+
+    def BPL(self) -> np.uint8:
+        pass
+
+    def BRK(self) -> np.uint8:
+        pass
+
+    def BVC(self) -> np.uint8:
+        pass
+
+    def BVS(self) -> np.uint8:
+        pass
+
+    def CLC(self) -> np.uint8:
+        pass
+
+    def CLD(self) -> np.uint8:
+        pass
+
+    def CLI(self) -> np.uint8:
+        pass
+
+    def CLV(self) -> np.uint8:
+        pass
+
+    def CMP(self) -> np.uint8:
+        pass
+
+    def CPX(self) -> np.uint8:
+        pass
+
+    def CPY(self) -> np.uint8:
+        pass
+
+    def DEC(self) -> np.uint8:
+        pass
+
+    def DEX(self) -> np.uint8:
+        pass
+
+    def DEY(self) -> np.uint8:
+        pass
+
+    def EOR(self) -> np.uint8:
+        pass
+
+    def INC(self) -> np.uint8:
+        pass
+
+    def INX(self) -> np.uint8:
+        pass
+
+    def INY(self) -> np.uint8:
+        pass
+
+    def JMP(self) -> np.uint8:
+        pass
+
+    def JSR(self) -> np.uint8:
+        pass
+
+    def LDA(self) -> np.uint8:
+        pass
+
+    def LDX(self) -> np.uint8:
+        pass
+
+    def LDY(self) -> np.uint8:
+        pass
+
+    def LSR(self) -> np.uint8:
+        pass
+
+    def CMP(self) -> np.uint8:
+        pass
+
+    def NOP(self) -> np.uint8:
+        pass
+
+    def ORA(self) -> np.uint8:
+        pass
+
+    def PHA(self) -> np.uint8:
+        pass
+
+    def PHP(self) -> np.uint8:
+        pass
+
+    def PLA(self) -> np.uint8:
+        pass
+
+    def PLP(self) -> np.uint8:
+        pass
+
+    def ROL(self) -> np.uint8:
+        pass
+
+    def ROR(self) -> np.uint8:
+        pass
+
+    def RTI(self) -> np.uint8:
+        pass
+
+    def RTS(self) -> np.uint8:
+        pass
+
+    def SBC(self) -> np.uint8:
+        pass
+
+    def SEC(self) -> np.uint8:
+        pass
+
+    def SED(self) -> np.uint8:
+        pass
+
+    def SEI(self) -> np.uint8:
+        pass
+
+    def STA(self) -> np.uint8:
+        pass
+
+    def STX(self) -> np.uint8:
+        pass
+
+    def STY(self) -> np.uint8:
+        pass
+
+    def TAX(self) -> np.uint8:
+        pass
+
+    def TAY(self) -> np.uint8:
+        pass
+
+    def TSX(self) -> np.uint8:
+        pass
+
+    def TXA(self) -> np.uint8:
+        pass
+
+    def TXS(self) -> np.uint8:
+        pass
+
+    def TYA(self) -> np.uint8:
+        pass
+
+    def CMP(self) -> np.uint8:
+        pass
+
+
+
 
 
 
