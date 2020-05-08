@@ -31,10 +31,17 @@ class Cpu:
         self.prg_counter = np.uint16(0x0000)
         self.stack_pointer = np.uint8(0x00)
 
+        # variables
+        self.fetched = np.uint8(0x00)
+        self.abs_address = np.uint16(0x0000)
+        self.rel_address = np.uint8(0x00)
+        self.ops_code = np.uint8(0x00)
+        self.cycle = 0
+
     def write(self, data: np.uint8, address: np.uint16):
         self.bus.write(data, address)
 
-    def read(self, address: np.uint16, read_only: bool = False) -> np.uint8:
+    def read(self, address: np.uint16, read_only: bool = False):
         return self.bus.read(address)
 
     def set_flag(self, flag_status: str, state: bool):
@@ -50,41 +57,110 @@ class Cpu:
         return np.uint8(flag_state)
 
     # addressing modes
-    def IMP(self) -> np.uint8:
-        pass
+    def IMP(self) -> int:
+        self.fetched = self.accumulator
+        return 0
 
-    def IMM(self) -> np.uint8:
-        pass
+    def IMM(self) -> int:
+        self.abs_address = self.prg_counter + np.uint16(1)
+        return 0
 
-    def ZPO(self) -> np.uint8:
-        pass
+    def ZPO(self) -> int:
+        self.abs_address = np.uint16(self.read(self.prg_counter))
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        self.abs_address &= np.uint16(0x00FF)
+        return 0
 
-    def ZPX(self) -> np.uint8:
-        pass
+    def ZPX(self) -> int:
+        self.abs_address = self.read(self.prg_counter) + self.x_register
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        self.abs_address &= np.uint16(0x00FF)
+        return 0
 
-    def ZPY(self) -> np.uint8:
-        pass
+    def ZPY(self) -> int:
+        self.abs_address = self.read(self.prg_counter) + self.y_register
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        self.abs_address &= np.uint16(0x00FF)
+        return 0
 
-    def ABS(self) -> np.uint8:
-        pass
+    def ABS(self) -> int:
+        lo = self.read(self.prg_counter)
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        hi = self.read(self.prg_counter)
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        self.abs_address = (hi << 8) | lo
+        return 0
 
-    def ABX(self) -> np.uint8:
-        pass
+    def ABX(self) -> int:
+        lo = self.read(self.prg_counter)
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        hi = self.read(self.prg_counter)
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        self.abs_address = (hi << 8) | lo
+        self.abs_address += self.x_register
 
-    def ABY(self) -> np.uint8:
-        pass
+        if self.abs_address & np.uint16(0x00FF) != (hi << 8):
+            return 1
+        else:
+            return 0
 
-    def IND(self) -> np.uint8:
-        pass
+    def ABY(self) -> int:
+        lo = self.read(self.prg_counter)
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        hi = self.read(self.prg_counter)
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        self.abs_address = (hi << 8) | lo
+        self.abs_address += self.y_register
 
-    def IZX(self) -> np.uint8:
-        pass
+        if self.abs_address & np.uint16(0x00FF) != (hi << 8):
+            return 1
+        else:
+            return 0
+
+    def IND(self) -> int:
+        lo = self.read(self.prg_counter)
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        hi = self.read(self.prg_counter)
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        pointer = (hi << 8) | lo
+
+        if lo == 0x00FF:
+            self.abs_address = (self.read(pointer & np.uint16(0xFF00)) << 8) | self.read(pointer + np.uint16(0))
+        else:
+            self.abs_address = (self.read(pointer + np.uint16(1)) << 8) | self.read(pointer + np.uint16(0))
+        return 0
+
+    def IZX(self) -> int:
+        t = self.read(self.prg_counter)
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        lo_pointer = np.uint16((t + self.x_register)) & np.uint16(0x00FF)
+        hi_pointer = (lo_pointer + np.uint16(1)) & np.uint16(0x00FF)
+
+        lo = self.read(lo_pointer)
+        hi = self.read(hi_pointer)
+        self.abs_address = (hi << 8) | lo
+        return 0
 
     def IZY(self) -> np.uint8:
-        pass
+        t = self.read(self.prg_counter)
+        self.prg_counter = self.prg_counter + np.uint16(1)
 
-    def REL(self) -> np.uint8:
-        pass
+        lo = np.uint16(self.read(t & np.uint16(0x00FF)))
+        hi = np.uint16(self.read(t + np.uint16(1) & np.uint16(0x00FF)))
+        self.abs_address = (hi << 8) | lo
+        self.abs_address += self.y_register
+
+        if (self.abs_address & 0xFF00) != (hi << 8):
+            return 1
+        else:
+            return 0
+
+    def REL(self) -> int:
+        self.rel_address = self.read(self.prg_counter)
+        self.prg_counter = self.prg_counter + np.uint16(1)
+        if self.rel_address & 0x80:
+            self.rel_address |= 0xFF00
+        return 0
 
     # opcodes
     def ADC(self) -> np.uint8:
@@ -260,6 +336,29 @@ class Cpu:
 
     def CMP(self) -> np.uint8:
         pass
+
+    # other function of the cpu
+    def clock(self):
+        # TODO implement cycle function
+        pass
+
+    def reset(self):
+        pass
+
+    def irq(self):
+        pass
+
+    def nmi(self):
+        pass
+
+    # helper function
+    def fetch(self) -> np.uint8:
+        pass
+
+
+
+
+
 
 
 
